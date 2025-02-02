@@ -60,8 +60,10 @@ func dedupDirectory(directory string, dryRun bool, quiet bool, noCross bool) err
 		if d.Type().IsDir() {
 			// Crossing mount point
 			if fileStat.Dev != rootStat.Dev {
-				if !noCross && err := dedupDirectory(path, dryRun, quiet, noCross); err != nil {
-					return err
+				if !noCross {
+					if err := dedupDirectory(path, dryRun, quiet, noCross); err != nil {
+						return err
+					}
 				}
 				return filepath.SkipDir
 			}
