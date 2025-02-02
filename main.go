@@ -128,8 +128,7 @@ func main() {
 
 	for _, directory := range flag.Args() {
 		if err := dedupDirectory(directory, opts.dryRun, opts.quiet, opts.noCross); err != nil {
-			log.Print(err)
-			os.Exit(1)
+			log.Fatal(err)
 		}
 	}
 }
