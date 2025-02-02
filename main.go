@@ -40,7 +40,7 @@ func hashFile(filePath string) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-func dedupDirectory(directory string, dryRun bool, quiet bool) error {
+func dedupDirectory(directory string, dryRun bool, quiet bool, noCross bool) error {
 	hashes := make(map[string]FileInfo)
 
 	var rootStat syscall.Stat_t
@@ -60,7 +60,10 @@ func dedupDirectory(directory string, dryRun bool, quiet bool) error {
 		if d.Type().IsDir() {
 			// Crossing mount point
 			if fileStat.Dev != rootStat.Dev {
-				return dedupDirectory(path, dryRun, quiet)
+				if noCross {
+					return filepath.SkipDir
+				}
+				return dedupDirectory(path, dryRun, quiet, noCross)
 			}
 			return nil
 		} else if !d.Type().IsRegular() {
@@ -98,6 +101,7 @@ func dedupDirectory(directory string, dryRun bool, quiet bool) error {
 func main() {
 	var opts struct {
 		dryRun  bool
+		noCross bool
 		quiet   bool
 		version bool
 	}
@@ -106,8 +110,9 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [OPTIONS] DIRECTORY...\n", os.Args[0])
 		flag.PrintDefaults()
 	}
-	flag.BoolVarP(&opts.dryRun, "dry-run", "n", false, "dry run, don't do anything stupid")
+	flag.BoolVarP(&opts.dryRun, "dry-run", "n", false, "dry run")
 	flag.BoolVarP(&opts.quiet, "quiet", "q", false, "be quiet about it")
+	flag.BoolVarP(&opts.noCross, "one-file-system", "x", false, "do not cross filesystems")
 	flag.BoolVarP(&opts.version, "version", "", false, "print version and exit")
 	flag.Parse()
 
@@ -120,7 +125,7 @@ func main() {
 	log.SetPrefix("ERROR: ")
 
 	for _, directory := range flag.Args() {
-		if err := dedupDirectory(directory, opts.dryRun, opts.quiet); err != nil {
+		if err := dedupDirectory(directory, opts.dryRun, opts.quiet, opts.noCross); err != nil {
 			log.Print(err)
 			os.Exit(1)
 		}
