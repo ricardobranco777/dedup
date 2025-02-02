@@ -14,7 +14,7 @@ import (
 
 import flag "github.com/spf13/pflag"
 
-const version = "0.1.0"
+const version = "0.2.0"
 
 type FileInfo struct {
 	path string
