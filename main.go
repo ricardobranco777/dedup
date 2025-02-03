@@ -45,7 +45,7 @@ func dedupDirectory(directory string, dryRun bool, quiet bool, noCross bool) err
 
 	var rootStat syscall.Stat_t
 	if err := syscall.Stat(directory, &rootStat); err != nil {
-		return err
+		return &os.PathError{Op: "stat", Path: directory, Err: err}
 	}
 
 	err := filepath.WalkDir(directory, func(path string, d os.DirEntry, err error) error {
@@ -54,8 +54,8 @@ func dedupDirectory(directory string, dryRun bool, quiet bool, noCross bool) err
 		}
 
 		var fileStat syscall.Stat_t
-		if err := syscall.Stat(path, &fileStat); err != nil {
-			return err
+		if err := syscall.Lstat(path, &fileStat); err != nil {
+			return &os.PathError{Op: "lstat", Path: path, Err: err}
 		}
 		if d.Type().IsDir() {
 			// Crossing mount point
