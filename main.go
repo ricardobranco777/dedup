@@ -3,13 +3,14 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
-	"golang.org/x/crypto/blake2b"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"runtime"
-	"syscall"
+
+	"golang.org/x/crypto/blake2b"
+	"golang.org/x/sys/unix"
 )
 
 import flag "github.com/spf13/pflag"
@@ -24,7 +25,7 @@ type FileInfo struct {
 func ignoringEINTR(fn func() error) error {
 	for {
 		err := fn()
-		if err != syscall.EINTR {
+		if err != unix.EINTR {
 			return err
 		}
 	}
@@ -52,9 +53,9 @@ func hashFile(filePath string) (string, error) {
 func dedupDirectory(directory string, dryRun bool, quiet bool, noCross bool) error {
 	hashes := make(map[string]FileInfo)
 
-	var rootStat syscall.Stat_t
+	var rootStat unix.Stat_t
 	if err := ignoringEINTR(func() error {
-		return syscall.Stat(directory, &rootStat)
+		return unix.Stat(directory, &rootStat)
 	}); err != nil {
 		return &os.PathError{Op: "stat", Path: directory, Err: err}
 	}
@@ -64,9 +65,9 @@ func dedupDirectory(directory string, dryRun bool, quiet bool, noCross bool) err
 			return err
 		}
 
-		var fileStat syscall.Stat_t
+		var fileStat unix.Stat_t
 		if err := ignoringEINTR(func() error {
-			return syscall.Lstat(path, &fileStat)
+			return unix.Lstat(path, &fileStat)
 		}); err != nil {
 			return &os.PathError{Op: "lstat", Path: path, Err: err}
 		}
