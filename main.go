@@ -22,15 +22,6 @@ type FileInfo struct {
 	ino  uint64
 }
 
-func ignoringEINTR(fn func() error) error {
-	for {
-		err := fn()
-		if err != unix.EINTR {
-			return err
-		}
-	}
-}
-
 func hashFile(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -54,9 +45,7 @@ func dedupDirectory(directory string, dryRun bool, quiet bool, noCross bool) err
 	hashes := make(map[string]FileInfo)
 
 	var rootStat unix.Stat_t
-	if err := ignoringEINTR(func() error {
-		return unix.Stat(directory, &rootStat)
-	}); err != nil {
+	if err := unix.Stat(directory, &rootStat); err != nil {
 		return &os.PathError{Op: "stat", Path: directory, Err: err}
 	}
 
@@ -66,9 +55,7 @@ func dedupDirectory(directory string, dryRun bool, quiet bool, noCross bool) err
 		}
 
 		var fileStat unix.Stat_t
-		if err := ignoringEINTR(func() error {
-			return unix.Lstat(path, &fileStat)
-		}); err != nil {
+		if err := unix.Lstat(path, &fileStat); err != nil {
 			return &os.PathError{Op: "lstat", Path: path, Err: err}
 		}
 		if d.Type().IsDir() {
