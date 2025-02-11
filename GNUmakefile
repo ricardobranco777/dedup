@@ -25,9 +25,9 @@ clean:
 
 .PHONY: gen
 gen:
-	@rm -f go.mod go.sum
-	@$(GO) mod init $(BIN)
-	@$(GO) mod tidy
+	$(RM) go.mod go.sum
+	$(GO) mod init $(BIN)
+	$(GO) mod tidy
 
 .PHONY: install
 install: $(BIN)
