@@ -2,7 +2,7 @@ BIN	= dedup
 BINDIR	= $(HOME)/bin
 
 GO	?= go
-DOCKER	?= docker
+DOCKER	?= podman
 
 # https://github.com/golang/go/issues/64875
 arch := $(shell uname -m)
