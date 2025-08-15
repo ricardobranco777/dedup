@@ -1,3 +1,5 @@
+![Build Status](https://github.com/ricardobranco777/dedup/actions/workflows/ci.yml/badge.svg)
+
 # dedup
 Deduplicate files in directory
 
