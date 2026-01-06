@@ -12,15 +12,10 @@ else
 CGO_ENABLED ?= 0
 endif
 
-# FreeBSD: https://github.com/golang/go/issues/64875
-# OpenBSD: https://github.com/golang/go/issues/59866
-os := $(shell uname -s)
-ifeq ($(os),Linux)
-FLAGS   := -buildmode=pie
-endif
+LDFLAGS	:= -s -w -buildid= -extldflags "-static-pie"
 
-$(BIN): *.go
-	CGO_ENABLED=$(CGO_ENABLED) $(GO) build -trimpath -ldflags="-s -w -buildid=" $(FLAGS)
+$(BIN): *.go GNUmakefile
+	CGO_ENABLED=$(CGO_ENABLED) $(GO) build -trimpath -ldflags="$(LDFLAGS)"
 
 .PHONY: build
 build:
