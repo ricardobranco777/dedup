@@ -6,7 +6,7 @@ DOCKER	?= podman
 
 CGO_ENABLED ?= 0
 
-LDFLAGS	:= -s -w -buildid= -extldflags "-static-pie"
+LDFLAGS	?= -s -w -buildid= -extldflags "-static-pie"
 
 $(BIN): *.go GNUmakefile
 	CGO_ENABLED=$(CGO_ENABLED) $(GO) build -trimpath -ldflags="$(LDFLAGS)"
