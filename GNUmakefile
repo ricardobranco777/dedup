@@ -24,10 +24,7 @@ test:
 	$(GO) vet
 	staticcheck
 	gofmt -s -l .
-
-.PHONY: lint
-lint:
-	golangci-lint run ./...
+	golangci-lint run
 
 .PHONY: clean
 clean:
