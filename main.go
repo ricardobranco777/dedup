@@ -27,7 +27,7 @@ func hashFile(filePath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer file.Close() //nolint:errcheck
+	defer file.Close()
 
 	hash, err := blake2b.New256(nil)
 	if err != nil {
